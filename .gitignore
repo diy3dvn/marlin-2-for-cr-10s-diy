@@ -154,6 +154,8 @@ Configuration_Secure.h
 *.vcxproj.user
 *.vcxproj.filters
 Release/
+Export/*.bin
+Export/*.elf
 Debug/
 __vm/
 .vs/
