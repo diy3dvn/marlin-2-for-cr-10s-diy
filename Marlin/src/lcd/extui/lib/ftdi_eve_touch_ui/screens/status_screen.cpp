@@ -97,7 +97,7 @@ void StatusScreen::draw_axis_position(draw_mode_t what) {
       strcpy_P(y_str, PSTR("?"));
 
     if (isAxisPositionKnown(Z))
-      format_position(z_str, getAxisPosition_mm(Z));
+      format_position(z_str, getAxisPosition_mm(Z), 2);
     else
       strcpy_P(z_str, PSTR("?"));
 
@@ -376,7 +376,9 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
   using namespace ExtUI;
 
   switch (tag) {
-    case 3: GOTO_SCREEN(FilesScreen); break;
+    #if ENABLED(SDSUPPORT)
+      case 3: GOTO_SCREEN(FilesScreen); break;
+    #endif
     case 4:
       if (isPrinting()) {
         GOTO_SCREEN(TuneMenu);

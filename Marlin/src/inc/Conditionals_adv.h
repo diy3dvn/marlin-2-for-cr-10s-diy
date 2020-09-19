@@ -56,6 +56,15 @@
   #undef SHOW_TEMP_ADC_VALUES
 #endif
 
+#if TEMP_SENSOR_BED == 0
+  #undef THERMAL_PROTECTION_BED
+  #undef THERMAL_PROTECTION_BED_PERIOD
+#endif
+
+#if TEMP_SENSOR_CHAMBER == 0
+  #undef THERMAL_PROTECTION_CHAMBER
+#endif
+
 #if ENABLED(MIXING_EXTRUDER) && (ENABLED(RETRACT_SYNC_MIXING) || BOTH(FILAMENT_LOAD_UNLOAD_GCODES, FILAMENT_UNLOAD_ALL_EXTRUDERS))
   #define HAS_MIXER_SYNC_CHANNEL 1
 #endif
@@ -187,6 +196,9 @@
   #ifndef ACTION_ON_CANCEL
     #define ACTION_ON_CANCEL  "cancel"
   #endif
+  #ifndef ACTION_ON_START
+    #define ACTION_ON_START   "start"
+  #endif
   #ifndef ACTION_ON_KILL
     #define ACTION_ON_KILL    "poweroff"
   #endif
@@ -246,13 +258,35 @@
   #endif
 #endif
 
+#if BOTH(LED_CONTROL_MENU, NEOPIXEL2_SEPARATE)
+  #ifndef LED2_USER_PRESET_RED
+    #define LED2_USER_PRESET_RED       255
+  #endif
+  #ifndef LED2_USER_PRESET_GREEN
+    #define LED2_USER_PRESET_GREEN     255
+  #endif
+  #ifndef LED2_USER_PRESET_BLUE
+    #define LED2_USER_PRESET_BLUE      255
+  #endif
+  #ifndef LED2_USER_PRESET_WHITE
+    #define LED2_USER_PRESET_WHITE     0
+  #endif
+  #ifndef LED2_USER_PRESET_BRIGHTNESS
+    #ifdef NEOPIXEL2_BRIGHTNESS
+      #define LED2_USER_PRESET_BRIGHTNESS NEOPIXEL2_BRIGHTNESS
+    #else
+      #define LED2_USER_PRESET_BRIGHTNESS 255
+    #endif
+  #endif
+#endif
+
 // If platform requires early initialization of watchdog to properly boot
 #if ENABLED(USE_WATCHDOG) && defined(ARDUINO_ARCH_SAM)
   #define EARLY_WATCHDOG 1
 #endif
 
 // Full Touch Screen needs 'tft/xpt2046'
-#if ENABLED(TOUCH_SCREEN)
+#if EITHER(TOUCH_SCREEN, HAS_TFT_LVGL_UI)
   #define HAS_TFT_XPT2046 1
 #endif
 
