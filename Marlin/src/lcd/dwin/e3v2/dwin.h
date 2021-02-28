@@ -214,16 +214,18 @@ enum processID : uint8_t {
 #define font32x64 0x09
 
 // Color
-#define White             0xFFFF
-#define Background_window 0x31E8  // Popup background color
-#define Background_blue   0x1125  // Dark blue background color
-#define Background_black  0x0841  // black background color
-#define Font_window       0xD6BA  // Popup font background color
+#define Color_White       0xFFFF
+#define Color_Yellow      0xFF0F
+#define Color_Bg_Window   0x31E8  // Popup background color
+#define Color_Bg_Blue     0x1125  // Dark blue background color
+#define Color_Bg_Black    0x0841  // Black background color
+#define Color_Bg_Red      0xF00F  // Red background color
+#define Popup_Text_Color  0xD6BA  // Popup font background color
 #define Line_Color        0x3A6A  // Split line color
-#define Rectangle_Color   0xEE2F  // blue square cursor color
-#define Percent_Color     0xFE29  // percentage color
-#define BarFill_Color     0x10E4  // fill color of progress bar
-#define Select_Color      0x33BB  // selected color
+#define Rectangle_Color   0xEE2F  // Blue square cursor color
+#define Percent_Color     0xFE29  // Percentage color
+#define BarFill_Color     0x10E4  // Fill color of progress bar
+#define Select_Color      0x33BB  // Selected color
 
 extern uint8_t checkkey;
 extern float zprobe_zoffset;
@@ -234,24 +236,27 @@ extern millis_t dwin_heat_time;
 typedef struct {
   TERN_(HAS_HOTEND,     int16_t E_Temp    = 0);
   TERN_(HAS_HEATED_BED, int16_t Bed_Temp  = 0);
-  TERN_(HAS_PREHEAT,    int16_t Fan_speed = 0);
+  TERN_(HAS_FAN,        int16_t Fan_speed = 0);
   int16_t print_speed     = 100;
   float Max_Feedspeed     = 0;
   float Max_Acceleration  = 0;
-  float Max_Jerk          = 0;
-  float Max_Step          = 0;
-  float Move_X_scale      = 0;
-  float Move_Y_scale      = 0;
-  float Move_Z_scale      = 0;
+  float Max_Jerk_scaled   = 0;
+  float Max_Step_scaled   = 0;
+  float Move_X_scaled     = 0;
+  float Move_Y_scaled     = 0;
+  float Move_Z_scaled     = 0;
   #if HAS_HOTEND
-    float Move_E_scale    = 0;
+    float Move_E_scaled   = 0;
   #endif
   float offset_value      = 0;
-  char show_mode          = 0;    // -1: Temperature control    0: Printing temperature
+  int8_t show_mode        = 0; // -1: Temperature control    0: Printing temperature
 } HMI_value_t;
 
+#define DWIN_CHINESE 123
+#define DWIN_ENGLISH 0
+
 typedef struct {
-  bool language_chinese;  // 0: EN, 1: CN
+  uint8_t language;
   bool pause_flag:1;
   bool pause_action:1;
   bool print_finish:1;
@@ -265,14 +270,11 @@ typedef struct {
   #if HAS_LEVELING
     bool leveling_offset_flag:1;
   #endif
-  #if HAS_FAN
-    AxisEnum feedspeed_axis;
-  #endif
-  AxisEnum acc_axis, jerk_axis, step_axis;
-} HMI_Flag;
+  AxisEnum feedspeed_axis, acc_axis, jerk_axis, step_axis;
+} HMI_Flag_t;
 
 extern HMI_value_t HMI_ValueStruct;
-extern HMI_Flag    HMI_flag;
+extern HMI_Flag_t HMI_flag;
 
 // Show ICO
 void ICON_Print(bool show);
@@ -335,8 +337,8 @@ void Icon_temperature(bool value);
 void Icon_leveling(bool value);
 
 // Other
-bool Pause_HeatStatus();
-void HMI_StartFrame(const bool with_update); // Startup screen
+void Draw_Status_Area(const bool with_update); // Status Area
+void HMI_StartFrame(const bool with_update);   // Prepare the menu view
 void HMI_MainMenu();    // Main process screen
 void HMI_SelectFile();  // File page
 void HMI_Printing();    // Print page
@@ -363,6 +365,8 @@ void HMI_Init();
 void DWIN_Update();
 void EachMomentUpdate();
 void DWIN_HandleScreen();
+
+inline void DWIN_StartHoming() { HMI_flag.home_flag = true; }
 
 void DWIN_CompletedHoming();
 void DWIN_CompletedLeveling();
